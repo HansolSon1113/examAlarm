@@ -1,0 +1,8 @@
+{
+    "name": "정발고 수행평가 알림",
+    "short_name": "수행평가 알리미",
+    "icons": "./src/icon.png",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "display": "standalone"
+}

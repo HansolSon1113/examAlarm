@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <title>수행평가 알리미</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+        <br/><br/>
+        수행평가 정보 추가
+    </head>
+    <body>
+        <button id="back">취소</button>
+        <div>
+            <p>날짜</p>
+            <input type="date" id="date" name="날짜" min="2023-01-01" max="2023-12-31">
+            <p>시간</p>
+            <select id="time" name="시간" onchange="changeTime()">
+                <option value="1">1교시</option>
+                <option value="2">2교시</option>
+                <option value="3">3교시</option>
+                <option value="4">4교시</option>
+                <option value="5">5교시</option>
+                <option value="6">6교시</option>
+                <option value="7">7교시</option>
+            </select>
+            <p>과목</p>
+            <select id="subject" name="과목" onchange="changeSub()">
+                <option value="국어">국어</option>
+                <option value="수학">수학</option>
+                <option value="영어">영어</option>
+                <option value="과학">과학</option>
+                <option value="사회">사회</option>
+                <option value="기타">기타</option>
+            </select>
+            <select id="sub_subject" name="세부과목">
+                <option value="국어">국어</option>
+                <option value="문학">문학</option>
+                <option value="언어와 매체">언어와 매체</option>
+                <option value="독서">독서</option>
+            </select>
+            <p>제목</p>
+            <input id ="name" type="text" size="50", maxlentgh="15" onchange="changeName()">
+            <p>설명</p>
+            <textarea id ="info" type="text" size="50", rows="4" cols="52" onchange="changeInfo()"></textarea>
+            <p>사진</p>
+            <form method="post" enctype="multipart/form-data">
+                <div class="button"></div>
+                <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
+            </form>
+            <div class="image-show" id="image-show"></div>
+            <p></p>
+            <br/>
+            <button id="fin">완료</button>
+            <br/><br/>
+        </div>
+        <script src="/add211.js"></script>
+    </body>
+</html>

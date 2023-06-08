@@ -6,6 +6,7 @@ var name = null;
 var info = null;
 var file;
 let sub_list = document.getElementById("sub_subject");
+const cl = 35;
 
 function loadFile(input) {
     var file = input.files[0];
@@ -102,7 +103,7 @@ async function run(){
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    cl: 35,
+                    cl: cl,
                     subject: subject,
                     sub_subject: sub_val,
                     date: date,
@@ -119,7 +120,7 @@ async function run(){
                 body: formData
             });
             alert("완료되었습니다.")
-            window.location.href = `./web35.html`;
+            window.location.href = `./web${cl}.html`;
         }
         else{alert("입력되지 않은 정보가 있습니다.")}
     });

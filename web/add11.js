@@ -6,6 +6,7 @@ var name = null;
 var info = null;
 var file;
 let sub_list = document.getElementById("sub_subject");
+const cl = 11;
 
 function loadFile(input) {
     var file = input.files[0];
@@ -95,13 +96,14 @@ async function run(){
         console.log(date) 
         sub_val = sub_list.options[document.getElementById("sub_subject").selectedIndex].value;  
         if(name != null && date && info != null){ 
-            await fetch("/upload-data", {
+             fin.setAttribute("hidden", "hidden");
+             await fetch("/upload-data", {
                  method: "post",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    cl: 11,
+                    cl: cl,
                     subject: subject,
                     sub_subject: sub_val,
                     date: date,
@@ -118,7 +120,7 @@ async function run(){
                 body: formData
             });
             alert("완료되었습니다.")
-            window.location.href = `./web35.html`;
+            window.location.href = `./web${cl}.html`;
         }
         else{alert("입력되지 않은 정보가 있습니다.")}
     });

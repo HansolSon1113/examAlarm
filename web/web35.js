@@ -25,6 +25,8 @@ Element.prototype.show = function() {
 
 
 async function run() {
+  var ckExist = document.cookie.indexOf('key');
+
     const data = await fetch("/getdata", {
         method: "post",
         headers: {
@@ -47,32 +49,59 @@ async function run() {
 
     const addbutton = document.getElementById("addbutton");
     addbutton.addEventListener("click", async () => {
-      window.location.href = `./add35.html`;
+      window.location.href = `./add${grade}${classname}.html`;
     });
 
     const sbutton = document.getElementById("subscribe");
+    if(ckExist == 0){
+      sbutton.innerText = "알림 취소";
+    }
+
     sbutton.addEventListener("click", async () => {
     const result = await window.Notification.requestPermission();
-
     if (result === "granted") {
-    const subscription = await registration.pushManager.subscribe({
-      applicationServerKey: urlBase64ToUint8Array(
-        "BHPAYD0XcuT8NYmun-VXn0W4PGwErEowElMN6TfO5hqE_iTbR66PNigG4joV6dWmixIth48J6-dcGlih0TnhO_I"
-      ),
-      userVisibleOnly: true,
+        const subscription = await registration.pushManager.subscribe({
+          applicationServerKey: urlBase64ToUint8Array(
+            "BHPAYD0XcuT8NYmun-VXn0W4PGwErEowElMN6TfO5hqE_iTbR66PNigG4joV6dWmixIth48J6-dcGlih0TnhO_I"
+          ),
+          userVisibleOnly: true,
     });
-
-    await fetch("/save-subscription", {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        subscription: subscription,
-        class: classname,
-        grade: grade
-      })
-    });
+    ckExist = document.cookie.indexOf('key'); 
+    if(ckExist == 0){
+      await fetch("/remove-subscription", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bool: true,
+          subscription: subscription,
+          class: classname,
+          grade: grade
+        })
+      });
+      document.cookie = "key=true; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+      alert("알림 구독이 취소되었습니다.");
+      sbutton.innerText = "알림 받기";
+    }
+    else{
+  
+      await fetch("/save-subscription", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bool: true,
+          subscription: subscription,
+          class: classname,
+          grade: grade
+        })
+      });
+      alert("알림 구독되었습니다."); 
+      document.cookie = "key=true; expires=Mon, 01 Jan 2024 00:00:00 UTC;";
+      sbutton.innerText = "알림 취소";
+    }
   }
 });
 };
@@ -105,6 +134,7 @@ function scription(data){
 function createTable(obj) {
   const tbl = document.createElement("table");
   tbl.id = "table"
+  tbl.class = "table"
   const tblBody = document.createElement("tbody");
   var mydata = JSON.parse(obj);
   let cnt = Object.keys(mydata).length;

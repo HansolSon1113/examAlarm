@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 import https from "https";
 import fs from "fs";
 import mysql2 from "mysql";
-import schedule from "node-schedule"
-import multer from "multer"
+import schedule from "node-schedule";
+import multer from "multer";
 
 dotenv.config();
 
@@ -28,14 +28,14 @@ const httpsauth = {
   cert: fs.readFileSync('./domain.cert.pem')
 };
 
-const datasql = mysql2.createConnection({
+const datasql = mysql2.createPool({
   host: 'localhost',
   user: 'phpadmin',
   password: '6729Aa++1',
   database: 'exam_project'
 });
 
-const sqlconnection = mysql2.createConnection({
+const sqlconnection = mysql2.createPool({
   host: 'localhost',
   user: 'phpadmin',
   password: '6729Aa++1',
@@ -105,24 +105,77 @@ function sendNoti() {
 };
 
 app.get('/send-notification', (req, res) => {
-  sendNoti();
+  console.log("Test Alarm Sent");
+  time = new Date();
+  let day = time.getDate()
+  let mon = time.getMonth()
+  console.log("sv", mon, day)
+  let classname = `00`
+  var endpointcnt = null
+  sqlconnection.query("SELECT * FROM `"+classname+"`", function (err, result, fields) {
+    if (err) throw err;
+    subscriptionData = JSON.parse(JSON.stringify(result));
+    endpointcnt = Object.keys(subscriptionData).length
+  });
+  datasql.query("SELECT * FROM `"+classname+"`", function (err, result, fields) {
+    if (err) throw err;
+    let examData = JSON.parse(JSON.stringify(result));
+    var cnt = Object.keys(examData).length
+    for(var a=0; a<cnt; a++){
+      let examday = new Date(examData[a].date);
+      let examdate = examday.getDate();
+      let exammon = examday.getMonth();
+      if(exammon == mon){            
+        if(examdate == day || examdate - 1 == day || examdate - 3 == day || examdate - 7 == day){
+          for(var b=0; b<endpointcnt; b++){
+            webpush.sendNotification({endpoint: subscriptionData[b].endpoint,
+              keys: {
+                "p256dh": subscriptionData[b].p256dh,
+                "auth": subscriptionData[b].auth
+                }
+              }, 
+              JSON.stringify({
+                title: examData[a].subject,
+                body: examData[a].name,
+                icon: "./src/icon.png",
+                vibrate: [20, 20]
+              })
+            );
+          }
+        }
+      }
+    }
+  });
   res.sendStatus(200); 
 });
 
 app.post("/save-subscription", async (req, res) => {
   subscriptionData = req.body.subscription;
-  console.log(subscriptionData.keys.auth)
+  console.log("sub,", subscriptionData.keys.auth)
   cl = `${req.body.grade}${req.body.class}`;
   sqlconnection.query('SELECT 1 FROM `'+cl+'` WHERE auth="'+subscriptionData.keys.auth+'"', function(err, result, fields){
     if (err) throw err;
     if(result.length >= 1){
+      res.sendStatus(200);
     }
     else{
       var sql = "INSERT INTO `"+cl+"` (endpoint, p256dh, auth) VALUES"+`('${subscriptionData.endpoint}', '${subscriptionData.keys.p256dh}', '${subscriptionData.keys.auth}')`;
-      sqlconnection.query(sql, function(err, rows) {});
+      sqlconnection.query(sql, function(err, rows) {
+      });
       res.sendStatus(200);
     }
   });
+});
+
+app.post("/remove-subscription", async (req, res) => {
+  subscriptionData = req.body.subscription;
+  console.log("del,", subscriptionData.keys.auth)
+  cl = `${req.body.grade}${req.body.class}`;
+  var sql = 'DELETE FROM `'+cl+'` WHERE auth="'+subscriptionData.keys.auth+'"';
+  sqlconnection.query(sql, function(err, result) {
+    if(err) throw err;
+  });
+  res.sendStatus(200);
 });
 
 app.post("/getdata", async (req, res) => { 
@@ -150,7 +203,6 @@ app.post("/upload-data", async(req, res) => {
 app.post("/upload-image", upload.single('file'), function(req, res, next){
   res.sendStatus(200);
 });
-
 
 const job = schedule.scheduleJob("00 00 08,18 * * *", function(){
   console.log("Alarm sent");
